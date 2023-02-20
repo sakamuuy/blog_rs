@@ -1,9 +1,33 @@
-use actix_web::{web, App, HttpServer, middleware, Error, error, HttpResponse};
+use actix_web::{error, middleware, web, App, Error, HttpResponse, HttpServer};
+use serde::Serialize;
 use tera::Tera;
 
-async fn index(tmpl: web::Data<Tera>) -> Result<HttpResponse, Error>{
+#[derive(Serialize)]
+struct Article {
+    title: String,
+    url: String,
+    date: String,
+}
+
+async fn index(tmpl: web::Data<Tera>) -> Result<HttpResponse, Error> {
     let mut ctx = tera::Context::new();
-    let view = tmpl.render("index.html.tera", &ctx).map_err(|e| error::ErrorInternalServerError(e))?;
+
+    let articles = vec![
+        Article {
+            title: "a1".to_string(),
+            url: "".to_string(),
+            date: "2023/02/03".to_string(),
+        },
+        Article {
+            title: "a2".to_string(),
+            url: "".to_string(),
+            date: "2023/02/03".to_string(),
+        },
+    ];
+    ctx.insert("articles", &articles);
+    let view = tmpl
+        .render("index.html.tera", &ctx)
+        .map_err(|e| error::ErrorInternalServerError(e))?;
     Ok(HttpResponse::Ok().content_type("text/html").body(view))
 }
 

@@ -2,11 +2,17 @@
 <html lang="ja">
 	<head>
 		<meta charset="utf-8">
-		<title>no title</title>
-		<meta name="description" content="">
+		<title>blog_rs</title>
+		<meta name="description" content="This is a blog web application written in Rust by sakamuuy">
 		<meta name="keywords" content="">
 	</head>
 	<body>
+		<h1>wrench</h1>
 		<div>blog_rs</div>
+		<ol>
+			{% for article in articles %}
+				<li><a href="{{article.url}}">{{article.title}}</a></li>
+			{% endfor %}
+		</ol>
 	</body>
 </html>
