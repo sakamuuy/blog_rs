@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::env;
+use dotenv::dotenv;
 
 use actix_web::{error, middleware, web, App, Error, HttpResponse, HttpServer};
 use serde::Serialize;
@@ -12,17 +13,8 @@ struct Article {
     date: String,
 }
 
-
-fn get_from_env(key: &str) -> String {
-    match env::var(key) {
-        Ok(v) => v,
-        Err(_) => "".to_string()
-    }
-}
-
-async fn fetch_from_micro_cms() -> Result<(), Box<dyn std::error::Error>> {
-    let end_point = get_from_env("END_POINT");
-println!("end: {}", end_point);
+async fn fetch_from_micro_cms(end_point: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let end_point = end_point.to_string();
     let resp = reqwest::get(end_point + "/api/v1/article").await?.json::<HashMap<String, String>>().await?;
     println!("{:#?}", resp);
     Ok(())
@@ -53,14 +45,17 @@ async fn index(tmpl: web::Data<Tera>) -> Result<HttpResponse, Error> {
 async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
+    dotenv().ok();
 
-fetch_from_micro_cms();
+    let end_point = env::var("END_POINT").expect("END_POINT must be set");
+fetch_from_micro_cms(&end_point);
     HttpServer::new(|| {
         let templates = Tera::new("templates/**/*").unwrap();
 
         App::new()
             .wrap(middleware::Logger::default())
             .data(templates)
+
             .service(web::resource("/").to(index))
     })
     .bind(("127.0.0.1", 8080))?
