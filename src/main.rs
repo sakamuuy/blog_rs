@@ -13,10 +13,15 @@ struct Article {
     date: String,
 }
 
-async fn fetch_from_micro_cms(end_point: &str) -> Result<(), Box<dyn std::error::Error>> {
+async fn fetch_from_micro_cms(end_point: &str, api_key: &str) -> Result<(), Box<dyn std::error::Error>> {
     let end_point = end_point.to_string();
-    let resp = reqwest::get(end_point + "/api/v1/article").await?.json::<HashMap<String, String>>().await?;
-    println!("{:#?}", resp);
+    let client = reqwest::Client::new();
+    let res = client.get(end_point + "/api/v1/article").header("X-MICROCMS-API-KEY", api_key).send().await?.json::<HashMap<String, String>>().await;
+
+    match res {
+        Ok(v) => println!("{:#?}", v),
+        Err(e) => println!("{}", e)
+    }
     Ok(())
 }
 
@@ -48,7 +53,9 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
     let end_point = env::var("END_POINT").expect("END_POINT must be set");
-fetch_from_micro_cms(&end_point);
+    let api_key = env::var("API_KEY").expect("API_KEY must be set");
+    fetch_from_micro_cms(&end_point, &api_key).await;
+
     HttpServer::new(|| {
         let templates = Tera::new("templates/**/*").unwrap();
 
