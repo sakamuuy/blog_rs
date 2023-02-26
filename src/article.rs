@@ -2,20 +2,20 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Category {
-    id: String,
-    name: String,
+    pub id: String,
+    pub name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Content {
-    id: String,
+    pub id: String,
     #[serde(rename = "createdAt")]
-    created_at: String,
+    pub created_at: String,
     #[serde(rename = "updatedAt")]
-    updated_at: String,
-    title: String,
-    body: String,
-    category: Category,
+    pub updated_at: String,
+    pub title: String,
+    pub body: String,
+    pub category: Category,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -23,7 +23,11 @@ pub struct ArticlesFromMicroCMS {
     pub contents: Vec<Content>,
 }
 
-pub async fn fetch_from_micro_cms(
+pub async fn get_article_from_micro_cms() {
+
+}
+
+pub async fn get_article_list_from_micro_cms(
     end_point: &str,
     api_key: &str,
 ) -> Result<ArticlesFromMicroCMS, Box<dyn std::error::Error>> {
