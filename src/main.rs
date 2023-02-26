@@ -1,11 +1,18 @@
 use dotenv::dotenv;
 use std::env;
 
-use actix_web::{error, middleware, web, App, Error, HttpResponse, HttpServer};
+use actix_web::{error, get, middleware, web, App, Error, HttpResponse, HttpServer};
 use tera::Tera;
 
 mod article;
 
+// #[get("/article/{article_id}")]
+// async fn article_service(path: web::Path<(u32, String)>) -> Result<HttpResponse, Error> {
+//     let (user_id, friend) = path.into_inner();
+//     Ok(HttpResponse::Ok().content_type("text/html").body(view))
+// }
+
+#[get("/")]
 async fn index(tmpl: web::Data<Tera>) -> Result<HttpResponse, Error> {
     let mut ctx = tera::Context::new();
 
@@ -33,7 +40,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(middleware::Logger::default())
             .data(templates)
-            .service(web::resource("/").to(index))
+            .service(index)
     })
     .bind(("127.0.0.1", 8080))?
     .run()

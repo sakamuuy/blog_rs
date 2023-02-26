@@ -37,8 +37,5 @@ pub async fn fetch_from_micro_cms(
         .json()
         .await?;
 
-    println!("res: {:#?}", res);
-
     Ok(res)
 }
-

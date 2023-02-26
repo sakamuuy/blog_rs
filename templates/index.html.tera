@@ -1,12 +1,6 @@
-<!DOCTYPE html>
-<html lang="ja">
-	<head>
-		<meta charset="utf-8">
-		<title>blog_rs</title>
-		<meta name="description" content="This is a blog web application written in Rust by sakamuuy">
-		<meta name="keywords" content="">
-	</head>
-	<body>
+{% extends "base.html.tera" %}
+{% block title %}Index{% endblock title %}
+{% block content %}
 		<h1>wrench</h1>
 		<div>blog_rs</div>
 		<ol>
@@ -14,5 +8,5 @@
 				<li><a href="{{article.id}}">{{article.title}}</a></li>
 			{% endfor %}
 		</ol>
-	</body>
-</html>
+{% endblock content %}
+
