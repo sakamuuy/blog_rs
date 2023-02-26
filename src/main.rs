@@ -2,57 +2,16 @@ use dotenv::dotenv;
 use std::env;
 
 use actix_web::{error, middleware, web, App, Error, HttpResponse, HttpServer};
-use serde::{Deserialize, Serialize};
 use tera::Tera;
 
-#[derive(Debug, Serialize, Deserialize)]
-struct Category {
-    id: String,
-    name: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Content {
-    id: String,
-    #[serde(rename = "createdAt")]
-    created_at: String,
-    #[serde(rename = "updatedAt")]
-    updated_at: String,
-    title: String,
-    body: String,
-    category: Category,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct ArticlesFromMicroCMS {
-    contents: Vec<Content>,
-}
-
-async fn fetch_from_micro_cms(
-    end_point: &str,
-    api_key: &str,
-) -> Result<ArticlesFromMicroCMS, Box<dyn std::error::Error>> {
-    let end_point = end_point.to_string();
-    let client = reqwest::Client::new();
-    let res: ArticlesFromMicroCMS = client
-        .get(end_point + "/api/v1/article")
-        .header("X-MICROCMS-API-KEY", api_key)
-        .send()
-        .await?
-        .json()
-        .await?;
-
-    println!("res: {:#?}", res);
-
-    Ok(res)
-}
+mod article;
 
 async fn index(tmpl: web::Data<Tera>) -> Result<HttpResponse, Error> {
     let mut ctx = tera::Context::new();
 
     let end_point = env::var("END_POINT").expect("END_POINT must be set");
     let api_key = env::var("API_KEY").expect("API_KEY must be set");
-    let res = fetch_from_micro_cms(&end_point, &api_key).await?;
+    let res = article::fetch_from_micro_cms(&end_point, &api_key).await?;
 
     ctx.insert("articles", &res.contents);
 
