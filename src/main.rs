@@ -13,9 +13,12 @@ struct AppState {
 }
 
 #[get("/article/{article_id}")]
-async fn article_service(path: web::Path<(u32, String)>) -> Result<HttpResponse, Error> {
+async fn article_service(path: web::Path<String>) -> Result<HttpResponse, Error> {
     let article_id = path.into_inner();
     let mut ctx = tera::Context::new();
+
+    let view = state.templates.render("article.html.tera", &ctx)
+        .map_err(|e| error::ErrorInternalServerError(e))?;
 
     Ok(HttpResponse::Ok().content_type("text/html").body(view))
 }
