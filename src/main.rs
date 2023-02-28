@@ -1,7 +1,7 @@
 use dotenv::dotenv;
 use std::env;
 
-use actix_web::{error, get, middleware, web, App, Error, HttpResponse, HttpServer};
+use actix_web::{error, get, middleware, web, App, Error, HttpResponse, HttpServer, HttpRequest};
 use tera::Tera;
 
 mod article;
@@ -13,7 +13,8 @@ struct AppState {
 }
 
 #[get("/article/{article_id}")]
-async fn article_service(path: web::Path<String>) -> Result<HttpResponse, Error> {
+async fn article_service(req: HttpRequest) -> Result<HttpResponse, Error> {
+    req.app_data::Data<>()
     let article_id = path.into_inner();
     let mut ctx = tera::Context::new();
 
