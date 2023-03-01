@@ -1,6 +1,13 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct OgImage {
+    pub url: String,
+    pub height: u16,
+    pub width: u16,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Category {
     pub id: String,
     pub name: String,

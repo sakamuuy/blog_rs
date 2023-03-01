@@ -1,8 +1,6 @@
 {% extends "base.html.tera" %}
 {% block title %}Index{% endblock title %}
 {% block content %}
-		<h1>wrench</h1>
-		<div>blog_rs</div>
 		<ol>
 			{% for article in articles %}
 				<li><a href="/article/{{article.id}}">{{article.title}}</a></li>

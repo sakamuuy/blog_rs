@@ -5,8 +5,12 @@
 		<title>{% block title %}{% endblock title %} - blog_rs</title>
 		<meta name="description" content="This is a blog web application written in Rust by sakamuuy">
 		<meta name="keywords" content="">
+		<link href="/static/index.css" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+		<script type="text/javascript" src="/static/index.js"></script>
 	</head>
 	<body>
+		<h1><a href="/">blog_rs</a></h1>
     <div id="content">{% block content %}{% endblock content %}</div>
 	</body>
 </html>

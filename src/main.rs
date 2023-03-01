@@ -1,5 +1,6 @@
 use dotenv::dotenv;
 use std::env;
+use actix_files as fs;
 
 use actix_web::{error, get, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use tera::Tera;
@@ -74,6 +75,7 @@ async fn main() -> std::io::Result<()> {
             }))
             .service(index)
             .service(article_service)
+            .service(fs::Files::new("/static", "./static").show_files_listing())
     })
     .bind(("127.0.0.1", 8080))?
     .run()
