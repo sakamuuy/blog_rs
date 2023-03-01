@@ -1,6 +1,6 @@
+use actix_files as fs;
 use dotenv::dotenv;
 use std::env;
-use actix_files as fs;
 
 use actix_web::{error, get, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use tera::Tera;
