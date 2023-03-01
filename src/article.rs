@@ -19,21 +19,36 @@ pub struct Content {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ArticlesFromMicroCMS {
+pub struct ArticleListFromMicroCMS {
     pub contents: Vec<Content>,
 }
 
-pub async fn get_article_from_micro_cms() {
+pub async fn get_article_from_micro_cms(
+    end_point: &str,
+    api_key: &str,
+    article_id: &str,
+) -> Result<Content, Box<dyn std::error::Error>> {
+    let end_point = end_point.to_string();
+    let client = reqwest::Client::new();
 
+    let res: Content = client
+        .get(end_point + "/api/v1/article/" + article_id)
+        .header("X-MICROCMS-API-KEY", api_key)
+        .send()
+        .await?
+        .json()
+        .await?;
+
+    Ok(res)
 }
 
 pub async fn get_article_list_from_micro_cms(
     end_point: &str,
     api_key: &str,
-) -> Result<ArticlesFromMicroCMS, Box<dyn std::error::Error>> {
+) -> Result<ArticleListFromMicroCMS, Box<dyn std::error::Error>> {
     let end_point = end_point.to_string();
     let client = reqwest::Client::new();
-    let res: ArticlesFromMicroCMS = client
+    let res: ArticleListFromMicroCMS = client
         .get(end_point + "/api/v1/article")
         .header("X-MICROCMS-API-KEY", api_key)
         .send()

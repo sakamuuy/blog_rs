@@ -1,7 +1,7 @@
 use dotenv::dotenv;
 use std::env;
 
-use actix_web::{error, get, middleware, web, App, Error, HttpResponse, HttpServer, HttpRequest};
+use actix_web::{error, get, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use tera::Tera;
 
 mod article;
@@ -9,16 +9,29 @@ mod article;
 struct AppState {
     micor_cms_api_key: String,
     micro_cms_domain: String,
-    templates: Tera
+    templates: Tera,
 }
 
 #[get("/article/{article_id}")]
 async fn article_service(req: HttpRequest) -> Result<HttpResponse, Error> {
-    req.app_data::Data<>()
-    let article_id = path.into_inner();
-    let mut ctx = tera::Context::new();
+    // TODO: Handle errors.
+    let state = req.app_data::<web::Data<AppState>>().unwrap();
+    let matcher = req.match_info();
+    let article_id = matcher.get("article_id").unwrap();
 
-    let view = state.templates.render("article.html.tera", &ctx)
+    let res = article::get_article_from_micro_cms(
+        &state.micro_cms_domain,
+        &state.micor_cms_api_key,
+        &article_id,
+    )
+    .await?;
+
+    let mut ctx = tera::Context::new();
+    ctx.insert("article", &res);
+
+    let view = state
+        .templates
+        .render("article.html.tera", &ctx)
         .map_err(|e| error::ErrorInternalServerError(e))?;
 
     Ok(HttpResponse::Ok().content_type("text/html").body(view))
@@ -28,11 +41,14 @@ async fn article_service(req: HttpRequest) -> Result<HttpResponse, Error> {
 async fn index(state: web::Data<AppState>) -> Result<HttpResponse, Error> {
     let mut ctx = tera::Context::new();
 
-    let res = article::get_article_list_from_micro_cms(&state.micro_cms_domain, &state.micor_cms_api_key).await?;
+    let res =
+        article::get_article_list_from_micro_cms(&state.micro_cms_domain, &state.micor_cms_api_key)
+            .await?;
 
     ctx.insert("articles", &res.contents);
 
-    let view = state.templates
+    let view = state
+        .templates
         .render("index.html.tera", &ctx)
         .map_err(|e| error::ErrorInternalServerError(e))?;
     Ok(HttpResponse::Ok().content_type("text/html").body(view))
@@ -54,9 +70,10 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(AppState {
                 micor_cms_api_key: api_key,
                 micro_cms_domain: domain,
-                templates
+                templates,
             }))
             .service(index)
+            .service(article_service)
     })
     .bind(("127.0.0.1", 8080))?
     .run()
